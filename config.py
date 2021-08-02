@@ -41,6 +41,7 @@ mod1 = "alt"
 mod2 = "control"
 home = os.path.expanduser('~')
 
+
 # xrandr variables
 
 acer = [
