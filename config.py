@@ -215,10 +215,12 @@ for i in groups:
 
 
 def init_layout_theme():
-    return {"margin": 5,
+    return {"margin": 8,
             "border_width": 2,
-            "border_focus": "#5e81ac",
-            "border_normal": "#4c566a"
+            "border_focus": "#1aafc7",
+            "border_normal": "#000a29"
+            # "border_focus": "#5e81ac",
+            # "border_normal": "#4c566a"
             }
 
 
@@ -226,15 +228,15 @@ layout_theme = init_layout_theme()
 
 
 layouts = [
-    layout.MonadTall(margin=8, border_width=2,
-                     border_focus="#5e81ac", border_normal="#4c566a"),
-    layout.MonadWide(margin=8, border_width=2,
-                     border_focus="#5e81ac", border_normal="#4c566a"),
-    layout.Matrix(**layout_theme),
+    # layout.MonadTall(margin=8, border_width=2,
+    #                  border_focus="#5e81ac", border_normal="#4c566a"),
+    # layout.MonadWide(margin=8, border_width=2,
+    #                  border_focus="#5e81ac", border_normal="#4c566a"),
+    # layout.Matrix(**layout_theme),
     layout.Bsp(**layout_theme),
-    layout.Floating(**layout_theme),
-    layout.RatioTile(**layout_theme),
-    layout.Max(**layout_theme)
+    # layout.Floating(**layout_theme),
+    # layout.RatioTile(**layout_theme),
+    # layout.Max(**layout_theme)
 ]
 
 # COLORS FOR THE BAR
@@ -530,8 +532,8 @@ widgets_screen2 = init_widgets_screen2()
 
 
 def init_screens():
-    return [Screen(top=bar.Bar(widgets=init_widgets_screen1(), size=30), bottom=bar.Bar(widgets=widgets_screen1_bottom(), size=30)),
-            Screen(top=bar.Bar(widgets=init_widgets_screen2(), size=30, opacity=1))]
+    return [Screen(top=bar.Bar(widgets=init_widgets_screen1(), size=30, margin=[0, 0, 8, 0], opacity=0.7), bottom=bar.Bar(widgets=widgets_screen1_bottom(), size=30, margin=[8, 0, 0, 0])),
+            Screen(top=bar.Bar(widgets=init_widgets_screen2(), size=30, margin=[0, 0, 8, 0], opacity=0.7))]
 
 
 screens = init_screens()
