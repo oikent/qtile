@@ -177,15 +177,15 @@ groups = []
 group_names = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", ]
 
 # FOR AZERTY KEYBOARDS
-#group_names = ["ampersand", "eacute", "quotedbl", "apostrophe", "parenleft", "section", "egrave", "exclam", "ccedilla", "agrave",]
+# group_names = ["ampersand", "eacute", "quotedbl", "apostrophe", "parenleft", "section", "egrave", "exclam", "ccedilla", "agrave",]
 
-#group_labels = ["1 ", "2 ", "3 ", "4 ", "5 ", "6 ", "7 ", "8 ", "9 ", "0",]
+# group_labels = ["1 ", "2 ", "3 ", "4 ", "5 ", "6 ", "7 ", "8 ", "9 ", "0",]
 group_labels = ["", "", "", "", "", "", "", "", "", "", ]
-#group_labels = ["Web", "Edit/chat", "Image", "Gimp", "Meld", "Video", "Vb", "Files", "Mail", "Music",]
+# group_labels = ["Web", "Edit/chat", "Image", "Gimp", "Meld", "Video", "Vb", "Files", "Mail", "Music",]
 
 group_layouts = ["monadtall", "monadtall", "monadtall", "monadtall",
                  "monadtall", "monadtall", "monadtall", "monadtall", "monadtall", "monadtall", ]
-#group_layouts = ["monadtall", "matrix", "monadtall", "bsp", "monadtall", "matrix", "monadtall", "bsp", "monadtall", "monadtall",]
+# group_layouts = ["monadtall", "matrix", "monadtall", "bsp", "monadtall", "matrix", "monadtall", "bsp", "monadtall", "monadtall",]
 
 for i in range(len(group_names)):
     groups.append(
@@ -206,7 +206,7 @@ for i in groups:
         Key(["mod1", "shift"], "Tab", lazy.screen.prev_group()),
 
         # MOVE WINDOW TO SELECTED WORKSPACE 1-10 AND STAY ON WORKSPACE
-        #Key([mod, "shift"], i.name, lazy.window.togroup(i.name)),
+        # Key([mod, "shift"], i.name, lazy.window.togroup(i.name)),
         # MOVE WINDOW TO SELECTED WORKSPACE 1-10 AND FOLLOW MOVED WINDOW TO WORKSPACE
         Key([mod, "shift"], i.name, lazy.window.togroup(
             i.name), lazy.group[i.name].toscreen()),
@@ -249,8 +249,10 @@ def init_colors():
             ["#d08770", "#d08770"],  # color 6
             ["#62FF00", "#62FF00"],  # color 7
             ["#6790eb", "#6790eb"],  # color 8
-            ["#a3be8c", "#a3be8c"], ]  # color 9
-
+            ["#a3be8c", "#a3be8c"],  # color 9
+            ["#1aafc7", "#000a29"],  # color 10
+            ['#00226b', '#000c4f']   # color 11
+            ]
     # [["#2F343F", "#2F343F"], # color 0
     # ["#2F343F", "#2F343F"], # color 1
     # ["#c0c5ce", "#c0c5ce"], # color 2
@@ -273,7 +275,7 @@ def init_widgets_defaults():
                 fontsize=16,
                 padding=2,
                 update_interval=5,
-                background=colors[0]
+                background=colors[11]
                 )
 
 
@@ -314,10 +316,26 @@ def init_widgets_list():
         widget.WindowName(
             foreground=colors[5],
         ),
+
+        widget.Pomodoro(
+            update_interval=1,
+            color_inactive=colors[6],
+            length_pomodori=30,
+        ),
+        widget.Sep(
+            linewidth=1,
+            padding=10,
+            foreground=colors[2],
+        ),
+        widget.TextBox(
+            font="FontAwesome",
+            text="  ",
+            foreground=colors[2],
+            padding=0,
+        ),
         widget.Backlight(
-            brightness_name='intel_backlight',
-            brightness_file='brightness',
-            max_brightness='max_brightness'
+            backlight_name='intel_backlight',
+            update_interval=0.5
         ),
 
         widget.Sep(
@@ -326,7 +344,12 @@ def init_widgets_list():
             foreground=colors[2],
 
         ),
-
+        widget.TextBox(
+            font="FontAwesome",
+            text="  ",
+            foreground=colors[2],
+            padding=0,
+        ),
         widget.ThermalSensor(
             foreground=colors[5],
             foreground_alert=colors[6],
@@ -348,7 +371,7 @@ def init_widgets_list():
             linewidth=1,
             padding=10,
             foreground=colors[2],
-            background=colors[1]
+
         ),
         widget.TextBox(
             font="FontAwesome",
@@ -420,6 +443,7 @@ def init_widgets_list():
             theme_path=home + "/.config/qtile/icons/battery_icons_horiz",
 
         ),
+
     ]
     return widgets_list
 ######################################
@@ -429,16 +453,33 @@ def init_widgets_list():
 def widgets_list_bottom():
     prompt = "{0}@{1}: ".format(os.environ["USER"], socket.gethostname())
     widgets_list_bottom = [
+        widget.TaskList(),
         widget.Spacer(length=bar.STRETCH),
-        widget.Net(
-            interface="wlp0s20f3",
+        widget.CheckUpdates(),
+        widget.GmailChecker(
+            username='oikent37@gmail.com',
+            password='nemwvzkyiquqvdhr'
+        ),
+
+        widget.Sep(
+            linewidth=1,
+            padding=10,
             foreground=colors[2],
-            padding=0,
+        ),
+        widget.OpenWeather(
+            app_key='334622f52a1318ed62d42b3b90b199e2',
+            cityid=2147714
         ),
         widget.Sep(
             linewidth=1,
             padding=10,
             foreground=colors[2],
+        ),
+        widget.Net(
+            format='{down} \u2193\u2191 {up}',
+            interface="wlp0s20f3",
+            foreground=colors[2],
+            padding=0,
         ),
         widget.NetGraph(
             fontsize=12,
@@ -446,7 +487,6 @@ def widgets_list_bottom():
             interface="auto",
             fill_color=colors[8],
             foreground=colors[2],
-
             graph_color=colors[8],
             border_color=colors[2],
             padding=0,
@@ -456,8 +496,7 @@ def widgets_list_bottom():
         widget.Systray(
             icon_size=24,
             padding=10
-        ),
-        widget.Spacer(length=bar.STRETCH),
+        )
 
     ]
     return widgets_list_bottom
@@ -554,7 +593,7 @@ dgroups_app_rules = []
 main = None
 
 
-@hook.subscribe.startup_once
+@ hook.subscribe.startup_once
 def start_once():
     home = os.path.expanduser('~')
     subprocess.call([home + '/.config/qtile/scripts/autostart.sh'])
@@ -562,13 +601,13 @@ def start_once():
     subprocess.call([home + '/.screenlayout/dual.sh'])
 
 
-@hook.subscribe.startup
+@ hook.subscribe.startup
 def start_always():
     # Set the cursor to something sane in X
     subprocess.Popen(['xsetroot', '-cursor_name', 'left_ptr'])
 
 
-@hook.subscribe.client_new
+@ hook.subscribe.client_new
 def set_floating(window):
     if (window.window.get_wm_transient_for()
             or window.window.get_wm_type() in floating_types):
