@@ -532,8 +532,8 @@ widgets_screen2 = init_widgets_screen2()
 
 
 def init_screens():
-    return [Screen(top=bar.Bar(widgets=init_widgets_screen1(), size=30, margin=[0, 0, 8, 0], opacity=0.7), bottom=bar.Bar(widgets=widgets_screen1_bottom(), size=30, margin=8)),
-            Screen(top=bar.Bar(widgets=init_widgets_screen2(), size=30, margin=[0, 0, 8, 0], opacity=0.7))]
+    return [Screen(top=bar.Bar(widgets=init_widgets_screen1(), size=30, margin=[8, 15, 8, 15], opacity=0.7), bottom=bar.Bar(widgets=widgets_screen1_bottom(), size=30)),
+            Screen(top=bar.Bar(widgets=init_widgets_screen2(), size=30, margin=[8, 15, 8, 15], opacity=0.7))]
 
 
 screens = init_screens()
