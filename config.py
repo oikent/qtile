@@ -42,16 +42,6 @@ mod2 = "control"
 home = os.path.expanduser('~')
 
 
-# xrandr variables
-
-acer = [
-    'xrandr',
-    '--output', 'HDMI1',
-    '--right-of', 'eDP1',
-    '--auto'
-]
-
-
 @lazy.function
 def window_to_prev_group(qtile):
     if qtile.currentWindow is not None:
@@ -71,17 +61,44 @@ keys = [
     # Most of our keybindings are in sxhkd file - except these
 
     # SUPER + FUNCTION KEYS
-    Key([mod], "c", subprocess.run(acer)),
-
+    Key([mod], "p", lazy.spawn('passmenu -fn "NotoMonoRegular:bold:pixelsize=21"')),
+    Key([mod], "e", lazy.spawn('code')),
+    Key([mod], "w", lazy.spawn('brave')),
+    Key([mod], "Return", lazy.spawn('alacritty')),
+    Key([mod], "x", lazy.spawn('arcolinux-logout')),
     Key([mod], "f", lazy.window.toggle_fullscreen()),
     Key([mod], "q", lazy.window.kill()),
 
 
     # SUPER + SHIFT KEYS
-
+    Key([mod, "shift"], "d", lazy.spawn(
+        "dmenu_run -i -nb '#191919' -nf '#fea63c' -sb '#fea63c' -sf '#191919' -fn 'NotoMonoRegular:bold:pixelsize=21'")),
 
     Key([mod, "shift"], "q", lazy.window.kill()),
+
+    # Run SUPER + CTRL + r if qtile has crashed
     Key([mod, "shift"], "r", lazy.restart()),
+
+    # CTRL + ALT KEYS
+    Key(["control", "mod1"], "b", lazy.spawn('thunar')),
+    Key(["control", "mod1"], "f", lazy.spawn('firefox')),
+    Key(["control", "mod1"], "g", lazy.spawn('google-chrome-stable')),
+    Key(["control", "mod1"], "o", lazy.spawn(
+        home + '/.config/qtile/scripts/picom-toggle.sh')),
+    Key(["control", "mod1"], "s", lazy.spawn(
+        'alacritty -e htop')),
+
+
+    # MULTIMEDIA KEYS
+    Key([], "XF86AudioMute", lazy.spawn("amixer -D pulse set Master 1+ toggle")),
+    Key([], "XF86AudioLowerVolume", lazy.spawn(
+        "amixer set Master 10%-")),
+    Key([], "XF86AudioRaiseVolume", lazy.spawn(
+        "amixer set Master 10%+")),
+    Key([], "XF86MonBrightnessDown", lazy.spawn(
+            "xbacklight -dec 10")),
+    Key([], "XF86MonBrightnessUp", lazy.spawn(
+            "xbacklight -inc 10")),
 
 
     # QTILE LAYOUT KEYS
@@ -215,7 +232,7 @@ for i in groups:
 
 
 def init_layout_theme():
-    return {"margin": 8,
+    return {"margin": 5,
             "border_width": 2,
             "border_focus": "#1aafc7",
             "border_normal": "#000a29"
@@ -254,8 +271,15 @@ def init_colors():
             ["#6790eb", "#6790eb"],  # color 8
             ["#a3be8c", "#a3be8c"],  # color 9
             ["#1aafc7", "#000a29"],  # color 10
-            ['#00226b', '#000c4f']   # color 11
+            ['#00226b', '#000c4f'],  # color 11
+            ['#2e344099', '#2e344099'],   # color 12
+            ["#1aafc750", "#000a2950"],      # color 13
+            ["#03071ecc", "#370617cc"],  # color 14
+            ["#b5179e80", "#480ca880"],  # color 15
+            ['#00000000'],                  # color 16
+            ['#ffffff00']                    # color 17
             ]
+
     # [["#2F343F", "#2F343F"], # color 0
     # ["#2F343F", "#2F343F"], # color 1
     # ["#c0c5ce", "#c0c5ce"], # color 2
@@ -286,7 +310,8 @@ widget_defaults = init_widgets_defaults()
 
 
 def init_widgets_list():
-    prompt = "{0}@{1}: ".format(os.environ["USER"], socket.gethostname())
+    # prompt = "{0}@{1}: ".format(os.environ["USER"], socket.gethostname())
+
     widgets_list = [
         widget.GroupBox(font="FontAwesome",
                         margin_y=-1,
@@ -301,50 +326,63 @@ def init_widgets_list():
                         highlight_method="text",
                         this_current_screen_border=colors[8],
                         foreground=colors[2],
+                        background="#ffffff00"
                         ),
         widget.Sep(
             linewidth=1,
             padding=10,
             foreground=colors[2],
-
+            background="#ffffff00"
         ),
         widget.CurrentLayout(
             foreground=colors[5],
+            background="#ffffff00"
         ),
         widget.Sep(
             linewidth=1,
             padding=10,
             foreground=colors[2],
+            background="#ffffff00"
         ),
-        widget.WindowName(
-            foreground=colors[5],
+        widget.TaskList(
+            background="#ffffff00"
         ),
+
+        # widget.WindowName(
+        #     foreground=colors[5],
+        # ),
 
         widget.Pomodoro(
             update_interval=1,
             color_inactive=colors[6],
             length_pomodori=30,
+            background="#ffffff00"
         ),
         widget.Sep(
             linewidth=1,
             padding=10,
             foreground=colors[2],
+            background="#ffffff00"
         ),
         widget.TextBox(
             font="FontAwesome",
             text="  ",
             foreground=colors[2],
             padding=0,
+            background="#ffffff00"
         ),
         widget.Backlight(
             backlight_name='intel_backlight',
-            update_interval=0.5
+            update_interval=0.5,
+            background="#ffffff00"
+
         ),
 
         widget.Sep(
             linewidth=1,
             padding=10,
             foreground=colors[2],
+            background="#ffffff00"
 
         ),
         widget.TextBox(
@@ -352,13 +390,15 @@ def init_widgets_list():
             text="  ",
             foreground=colors[2],
             padding=0,
+            background="#ffffff00"
         ),
         widget.ThermalSensor(
             foreground=colors[5],
             foreground_alert=colors[6],
             metric=True,
             padding=3,
-            threshold=80
+            threshold=80,
+            background="#ffffff00"
         ),
 
         # # battery option 2  from Qtile
@@ -366,14 +406,17 @@ def init_widgets_list():
             linewidth=1,
             padding=10,
             foreground=colors[2],
+            background="#ffffff00"
         ),
         widget.Battery(
             foreground=colors[5],
+            background="#ffffff00"
         ),
         widget.Sep(
             linewidth=1,
             padding=10,
             foreground=colors[2],
+            background="#ffffff00"
 
         ),
         widget.TextBox(
@@ -381,11 +424,13 @@ def init_widgets_list():
             text="  ",
             foreground=colors[6],
             padding=0,
+            background="#ffffff00"
         ),
 
         widget.CPU(
             format='{load_percent}%',
             foreground=colors[6],
+            background="#ffffff00"
         ),
         #    widget.CPUGraph(
         #             border_color = colors[2],
@@ -401,6 +446,7 @@ def init_widgets_list():
             linewidth=1,
             padding=10,
             foreground=colors[2],
+            background="#ffffff00"
 
         ),
         widget.TextBox(
@@ -408,28 +454,33 @@ def init_widgets_list():
             text="  ",
             foreground=colors[4],
             padding=0,
+            background="#ffffff00"
 
         ),
         widget.Memory(
             format='{MemUsed: .0f}M/{MemTotal: .0f}M',
             foreground=colors[4],
+            background="#ffffff00"
 
         ),
         widget.Sep(
             linewidth=1,
             padding=10,
             foreground=colors[2],
+            background="#ffffff00"
         ),
         widget.TextBox(
             font="FontAwesome",
             text="  ",
             foreground=colors[3],
             padding=0,
+            background="#ffffff00"
 
         ),
         widget.Clock(
             foreground=colors[3],
-            format="%d/%m/%y %H:%M"
+            format="%d/%m/%y %H:%M",
+            background="#ffffff00"
         ),
 
         # # battery option 1  ArcoLinux Horizontal icons do not forget to import arcobattery at the top
@@ -437,6 +488,7 @@ def init_widgets_list():
             linewidth=1,
             padding=10,
             foreground=colors[2],
+            background="#ffffff00"
 
         ),
         arcobattery.BatteryIcon(
@@ -444,6 +496,7 @@ def init_widgets_list():
             scale=0.7,
             y_poss=2,
             theme_path=home + "/.config/qtile/icons/battery_icons_horiz",
+            background="#ffffff00"
 
         ),
 
@@ -454,14 +507,13 @@ def init_widgets_list():
 
 
 def widgets_list_bottom():
-    prompt = "{0}@{1}: ".format(os.environ["USER"], socket.gethostname())
+    #prompt = "{0}@{1}: ".format(os.environ["USER"], socket.gethostname())
     widgets_list_bottom = [
-        widget.TaskList(),
         widget.Spacer(length=bar.STRETCH),
         widget.CheckUpdates(),
         widget.GmailChecker(
             username='oikent37@gmail.com',
-            password='nemwvzkyiquqvdhr'
+            password='waueriuzsjcrsnfa'
         ),
 
         widget.Sep(
@@ -484,56 +536,36 @@ def widgets_list_bottom():
             foreground=colors[2],
             padding=0,
         ),
-        widget.NetGraph(
-            fontsize=12,
-            bandwidth="down",
-            interface="auto",
-            fill_color=colors[8],
-            foreground=colors[2],
-            graph_color=colors[8],
-            border_color=colors[2],
-            padding=0,
-            border_width=1,
-            line_width=1,
-        ),
+        # widget.NetGraph(
+        #     fontsize=12,
+        #     bandwidth="down",
+        #     interface="auto",
+        #     fill_color=colors[8],
+        #     foreground=colors[2],
+        #     graph_color=colors[8],
+        #     border_color=colors[2],
+        #     padding=0,
+        #     border_width=1,
+        #     line_width=1,
+        # ),
+
         widget.Systray(
             icon_size=24,
             padding=10
         )
-
     ]
     return widgets_list_bottom
 
-
-widget_list_bottom = widgets_list_bottom()
-
-
-def widgets_screen1_bottom():
-    widgets_screen1_bottom = widget_list_bottom
-    return widgets_screen1_bottom
-
-
 ####################################################
-widgets_list = init_widgets_list()
-
-
-def init_widgets_screen1():
-    widgets_screen1 = init_widgets_list()
-    return widgets_screen1
-
-
-def init_widgets_screen2():
-    widgets_screen2 = init_widgets_list()
-    return widgets_screen2
-
-
-widgets_screen1 = init_widgets_screen1()
-widgets_screen2 = init_widgets_screen2()
 
 
 def init_screens():
-    return [Screen(top=bar.Bar(widgets=init_widgets_screen1(), size=30, margin=[8, 15, 8, 15], opacity=0.7), bottom=bar.Bar(widgets=widgets_screen1_bottom(), size=30)),
-            Screen(top=bar.Bar(widgets=init_widgets_screen2(), size=30, margin=[8, 15, 8, 15], opacity=0.7))]
+    return [Screen(top=bar.Bar(widgets=init_widgets_list(), size=30, margin=[0, 5, 0, 5], background="#ffffff00"),
+                   bottom=bar.Bar(widgets=widgets_list_bottom(),
+                                  size=30, margin=[0, 5, 0, 5])
+
+
+                   )]
 
 
 screens = init_screens()
@@ -545,6 +577,8 @@ mouse = [
          start=lazy.window.get_position()),
     Drag([mod], "Button3", lazy.window.set_size_floating(),
          start=lazy.window.get_size())
+
+
 ]
 
 dgroups_key_binder = None
@@ -602,6 +636,9 @@ def start_once():
     subprocess.call([home + '/.config/qtile/scripts/autostart.sh'])
     # start arandr script
     subprocess.call([home + '/.screenlayout/dual.sh'])
+    # Run picom toggle
+    # subprocess.call([home + '/.config/qtile/scripts/picom-toggle.sh'])
+    # subprocess.call([home + '/.config/qtile/scripts/picom-toggle.sh'])
 
 
 @ hook.subscribe.startup
@@ -620,7 +657,7 @@ def set_floating(window):
 floating_types = ["notification", "toolbar", "splash", "dialog"]
 
 
-follow_mouse_focus = True
+follow_mouse_focus = False
 bring_front_click = False
 cursor_warp = False
 floating_layout = layout.Floating(float_rules=[
