@@ -96,8 +96,8 @@ super + m
     pragha
 
 #urxvt
-super + Return
-    alacritty
+#super + Return
+ #   alacritty
 
 #Xkill
 super + Escape

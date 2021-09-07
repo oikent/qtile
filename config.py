@@ -25,13 +25,14 @@
 # SOFTWARE.
 
 
+from logging import shutdown
 import os
 import re
 import socket
 import subprocess
 from libqtile.config import Drag, Key, Screen, Group, Drag, Click, Rule
 from libqtile.command import lazy
-from libqtile import layout, bar, widget, hook
+from libqtile import layout, bar, widget, hook, qtile
 from libqtile.widget import Spacer
 import arcobattery
 
@@ -68,6 +69,9 @@ keys = [
     Key([mod], "x", lazy.spawn('arcolinux-logout')),
     Key([mod], "f", lazy.window.toggle_fullscreen()),
     Key([mod], "q", lazy.window.kill()),
+
+    # xrandr
+    Key([mod], "z", lazy.spawn(home + '/.screenlayout/dual.sh')),
 
 
     # SUPER + SHIFT KEYS
@@ -261,35 +265,28 @@ layouts = [
 
 def init_colors():
     return [["#2e3440", "#3b4252"],  # color 0
-            ["#2e3440", "#2e3440"],  # color 1
+            ["#1A73E8", "#1A73E8"],  # color 1
             ["#d8dee9", "#d8dee9"],  # color 2
             ["#ebcb8b", "#ebcb8b"],  # color 3
             ["#8fbcbb", "#8fbcbb"],  # color 4
             ["#f3f4f5", "#f3f4f5"],  # color 5
             ["#d08770", "#d08770"],  # color 6
-            ["#62FF00", "#62FF00"],  # color 7
+            ["#62BB00", "#62BB00"],  # color 7
             ["#6790eb", "#6790eb"],  # color 8
             ["#a3be8c", "#a3be8c"],  # color 9
-            ["#1aafc7", "#000a29"],  # color 10
-            ['#00226b', '#000c4f'],  # color 11
-            ['#2e344099', '#2e344099'],   # color 12
-            ["#1aafc750", "#000a2950"],      # color 13
-            ["#03071ecc", "#370617cc"],  # color 14
-            ["#b5179e80", "#480ca880"],  # color 15
-            ['#00000000'],                  # color 16
-            ['#ffffff00']                    # color 17
+            ["#000a29", "#000a29"],  # color 10
+            ["#1aafc7", "#1aafc7"],  # color 11
+            ['#00226b', '#00226b'],  # color 12
+            ["#000c4f", '#000c4f'],  # color 13
+            ["#2F343F", "#2F343F"],  # color 14
+            ["#c0c5ce", "#c0c5ce"],  # color 15
+            ["#fba922", "#fba922"],  # color 16
+            ["#3384d0", "#3384d0"],  # color 17
+            ["#cd1f3f", "#cd1f3f"],  # color 18
+            ["#e6d3f0", "#e6d3f0"],  # color 19
+            ["#00aaff", "#00aaff"],  # color 20
+            ["#dd1f3f", "#dd1f3f"]   # color 21
             ]
-
-    # [["#2F343F", "#2F343F"], # color 0
-    # ["#2F343F", "#2F343F"], # color 1
-    # ["#c0c5ce", "#c0c5ce"], # color 2
-    # ["#fba922", "#fba922"], # color 3
-    # ["#3384d0", "#3384d0"], # color 4
-    # ["#f3f4f5", "#f3f4f5"], # color 5
-    # ["#cd1f3f", "#cd1f3f"], # color 6
-    # ["#62FF00", "#62FF00"], # color 7
-    # ["#6790eb", "#6790eb"], # color 8
-    # ["#a9a9a9", "#a9a9a9"],] # color 9
 
 
 colors = init_colors()
@@ -299,10 +296,10 @@ colors = init_colors()
 
 def init_widgets_defaults():
     return dict(font="Noto Sans Bold",
-                fontsize=16,
-                padding=2,
+                fontsize=18,
+                padding=0,
                 update_interval=5,
-                background=colors[11]
+                background="#ffffff00"
                 )
 
 
@@ -329,8 +326,8 @@ def init_widgets_list():
                         background="#ffffff00"
                         ),
         widget.Sep(
-            linewidth=1,
-            padding=10,
+            linewidth=0,
+            padding=20,
             foreground=colors[2],
             background="#ffffff00"
         ),
@@ -339,8 +336,8 @@ def init_widgets_list():
             background="#ffffff00"
         ),
         widget.Sep(
-            linewidth=1,
-            padding=10,
+            linewidth=0,
+            padding=20,
             foreground=colors[2],
             background="#ffffff00"
         ),
@@ -348,39 +345,52 @@ def init_widgets_list():
             background="#ffffff00"
         ),
 
-        # widget.WindowName(
-        #     foreground=colors[5],
-        # ),
-
         widget.Pomodoro(
             update_interval=1,
-            color_inactive=colors[6],
+            color_inactive=colors[14],
             length_pomodori=30,
             background="#ffffff00"
         ),
         widget.Sep(
-            linewidth=1,
-            padding=10,
+            linewidth=0,
+            padding=20,
+            foreground=colors[2],
+            background="#ffffff00"
+        ),
+        widget.TextBox(
+            font="FontAwesome",
+            text="  ",
+            foreground=colors[19],
+            background="#ffffff00"
+        ),
+        widget.Volume(
+            update_interval=0.2,
+            foreground=colors[19],
+            background="#ffffff00"
+        ),
+        widget.Sep(
+            linewidth=0,
+            padding=20,
             foreground=colors[2],
             background="#ffffff00"
         ),
         widget.TextBox(
             font="FontAwesome",
             text="  ",
-            foreground=colors[2],
-            padding=0,
+            foreground=colors[9],
             background="#ffffff00"
         ),
         widget.Backlight(
             backlight_name='intel_backlight',
             update_interval=0.5,
+            foreground=colors[9],
             background="#ffffff00"
 
         ),
 
         widget.Sep(
-            linewidth=1,
-            padding=10,
+            linewidth=0,
+            padding=20,
             foreground=colors[2],
             background="#ffffff00"
 
@@ -388,49 +398,37 @@ def init_widgets_list():
         widget.TextBox(
             font="FontAwesome",
             text="  ",
-            foreground=colors[2],
+            foreground=colors[8],
             padding=0,
             background="#ffffff00"
         ),
         widget.ThermalSensor(
-            foreground=colors[5],
-            foreground_alert=colors[6],
+            foreground=colors[8],
+            foreground_alert=colors[16],
             metric=True,
-            padding=3,
             threshold=80,
             background="#ffffff00"
         ),
 
         # # battery option 2  from Qtile
         widget.Sep(
-            linewidth=1,
-            padding=10,
+            linewidth=0,
+            padding=20,
             foreground=colors[2],
             background="#ffffff00"
         ),
-        widget.Battery(
-            foreground=colors[5],
-            background="#ffffff00"
-        ),
-        widget.Sep(
-            linewidth=1,
-            padding=10,
-            foreground=colors[2],
-            background="#ffffff00"
 
-        ),
         widget.TextBox(
             font="FontAwesome",
             text="  ",
             foreground=colors[6],
-            padding=0,
             background="#ffffff00"
         ),
 
         widget.CPU(
             format='{load_percent}%',
             foreground=colors[6],
-            background="#ffffff00"
+            background="#ffffff00",
         ),
         #    widget.CPUGraph(
         #             border_color = colors[2],
@@ -443,37 +441,34 @@ def init_widgets_list():
         #             type = "box"
         #             ),
         widget.Sep(
-            linewidth=1,
-            padding=10,
+            linewidth=0,
+            padding=20,
             foreground=colors[2],
             background="#ffffff00"
 
         ),
         widget.TextBox(
             font="FontAwesome",
-            text="  ",
+            text=" ",
             foreground=colors[4],
-            padding=0,
             background="#ffffff00"
 
         ),
         widget.Memory(
-            format='{MemUsed: .0f}M/{MemTotal: .0f}M',
+            format='{MemUsed: .0f}M /{MemTotal: .0f}M',
             foreground=colors[4],
             background="#ffffff00"
-
         ),
         widget.Sep(
-            linewidth=1,
-            padding=10,
+            linewidth=0,
+            padding=20,
             foreground=colors[2],
             background="#ffffff00"
         ),
         widget.TextBox(
             font="FontAwesome",
-            text="  ",
+            text="   ",
             foreground=colors[3],
-            padding=0,
             background="#ffffff00"
 
         ),
@@ -483,22 +478,13 @@ def init_widgets_list():
             background="#ffffff00"
         ),
 
-        # # battery option 1  ArcoLinux Horizontal icons do not forget to import arcobattery at the top
         widget.Sep(
-            linewidth=1,
-            padding=10,
+            linewidth=0,
+            padding=20,
             foreground=colors[2],
             background="#ffffff00"
-
         ),
-        arcobattery.BatteryIcon(
-            padding=0,
-            scale=0.7,
-            y_poss=2,
-            theme_path=home + "/.config/qtile/icons/battery_icons_horiz",
-            background="#ffffff00"
 
-        ),
 
     ]
     return widgets_list
@@ -506,35 +492,91 @@ def init_widgets_list():
 # widget list bottom bar
 
 
+def spawn_blueberry():
+    qtile.cmd_spawn('blueberry')
+
+
+def open_mail():
+    qtile.cmd_spawn('thunderbird')
+
+
+def open_wifi():
+    qtile.cmd_spawn('alacritty -e nmtui')
+
+
+def poweroff():
+    qtile.cmd_spawn('alacritty -e shutdown +0')
+
+
+def update():
+    qtile.cmd_spawn('sudo .config/qtile/scripts/update.sh')
+
+
 def widgets_list_bottom():
-    #prompt = "{0}@{1}: ".format(os.environ["USER"], socket.gethostname())
+    # prompt = "{0}@{1}: ".format(os.environ["USER"], socket.gethostname())
     widgets_list_bottom = [
         widget.Spacer(length=bar.STRETCH),
-        widget.CheckUpdates(),
-        widget.GmailChecker(
-            username='oikent37@gmail.com',
-            password='waueriuzsjcrsnfa'
-        ),
 
+        # widget.CheckUpdates(
+        #     display_format='updates:{updates}',
+        #     foreground=colors[0],
+        #     colour_have_updates=colors[21],
+        #     mouse_callbacks={
+        #         'Button1': update
+        #     },
+        #     no_update_string='No Updates',
+        # ),
         widget.Sep(
-            linewidth=1,
-            padding=10,
-            foreground=colors[2],
+            linewidth=0,
+            padding=20,
         ),
         widget.OpenWeather(
             app_key='334622f52a1318ed62d42b3b90b199e2',
-            cityid=2147714
+            cityid=2147714,
+            foreground=colors[15],
         ),
         widget.Sep(
-            linewidth=1,
-            padding=10,
-            foreground=colors[2],
+            linewidth=0,
+            padding=20,
         ),
         widget.Net(
             format='{down} \u2193\u2191 {up}',
             interface="wlp0s20f3",
-            foreground=colors[2],
-            padding=0,
+            foreground=colors[9],
+
+        ),
+        widget.Sep(
+            linewidth=0,
+            padding=20,
+        ),
+        widget.GmailChecker(
+            username='oikent37@gmail.com',
+            password='waueriuzsjcrsnfa',
+            status_only_unseen=True,
+            display_fmt='Unread {0}',
+            foreground=colors[16],
+            mouse_callbacks={
+                'Button1': open_mail}
+        ),
+
+
+        widget.Sep(
+            linewidth=0,
+            padding=20,
+        ),
+        widget.Battery(
+            foreground=colors[7],
+            format='{watt:0.2f}W  {hour}:{min}  {percent:2.0%}'
+
+        ),
+        arcobattery.BatteryIcon(
+
+            scale=0.7,
+            y_poss=2,
+            theme_path=home + "/.config/qtile/icons/battery_icons_horiz",
+            format='{percent}'
+
+
         ),
         # widget.NetGraph(
         #     fontsize=12,
@@ -548,11 +590,42 @@ def widgets_list_bottom():
         #     border_width=1,
         #     line_width=1,
         # ),
+        widget.TextBox(
+            font="FontAwesome",
+            text="  ",
+            foreground=colors[20],
+            mouse_callbacks={
+                "Button1": spawn_blueberry
+            }
 
-        widget.Systray(
-            icon_size=24,
-            padding=10
+        ),
+        widget.Sep(
+            linewidth=0,
+            padding=5,
+        ),
+
+        widget.TextBox(
+            font="FontAwesome",
+            text="  ",
+            foreground=colors[2],
+            mouse_callbacks={
+                'Button1': open_wifi
+            }
+
+        ),
+        widget.Sep(
+            linewidth=0,
+            padding=5,
+        ),
+        widget.TextBox(
+            font="FontAwesome",
+            text="  ",
+            foreground=colors[18],
+            mouse_callbacks={
+                'Button2': poweroff
+            }
         )
+
     ]
     return widgets_list_bottom
 
@@ -562,7 +635,7 @@ def widgets_list_bottom():
 def init_screens():
     return [Screen(top=bar.Bar(widgets=init_widgets_list(), size=30, margin=[0, 5, 0, 5], background="#ffffff00"),
                    bottom=bar.Bar(widgets=widgets_list_bottom(),
-                                  size=30, margin=[0, 5, 0, 5])
+                                  size=30, margin=[0, 5, 0, 5], background="#ffffff00")
 
 
                    )]
